@@ -6,6 +6,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import type { WebGLRenderer } from "three"
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 
 const threeContainer = ref<HTMLElement | null>(null)
 
@@ -23,6 +25,7 @@ onMounted(() => {
   loadModel()
   animate()
   addPlane()
+  addText()
 })
 
 function setupScene() {
@@ -130,6 +133,31 @@ function addPlane() {
   plane.position.y = -1
 
   scene.add(plane)
+}
+
+function addText(text = "Choupi") {
+  const loader = new FontLoader()
+
+  loader.load("/fonts/DynaPuff-Medium_Regular.json", function (font) {
+    const geometry = new TextGeometry(text, {
+      font: font,
+      size: 10,
+      depth: 1,
+      curveSegments: 12,
+      bevelThickness: 1,
+      bevelSize: 0.5,
+      bevelOffset: 0,
+      bevelSegments: 3,
+    })
+
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff }) // Blanc
+    const textMesh = new THREE.Mesh(geometry, material)
+
+    textMesh.position.set(84, 50, 70) // Avant-arrière X, haut-bas Y, et gauche-droite Z
+    textMesh.rotation.set(0, 900, 0)
+
+    scene.add(textMesh)
+  })
 }
 </script>
 
