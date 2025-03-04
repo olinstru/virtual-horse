@@ -5,10 +5,14 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
+import type { WebGLRenderer } from "three"
 
 const threeContainer = ref<HTMLElement | null>(null)
 
-let scene, camera, renderer, controls
+let scene: THREE.Scene,
+  camera: THREE.Camera,
+  renderer: WebGLRenderer,
+  controls: OrbitControls
 
 onMounted(() => {
   setupScene()
@@ -18,6 +22,7 @@ onMounted(() => {
   loadHDRI()
   loadModel()
   animate()
+  addPlane()
 })
 
 function setupScene() {
@@ -31,14 +36,16 @@ function setupCamera() {
     0.1,
     1000
   )
-
-  camera.position.set(300, 1, 0)
+  camera.position.set(400, 50, -80)
 }
 
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setClearColor(0x000000, 0)
+
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 0.9
+
   if (threeContainer.value) {
     threeContainer.value.appendChild(renderer.domElement)
   }
@@ -46,17 +53,20 @@ function setupRenderer() {
 
 function setupControls() {
   controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableZoom = false
-  controls.minDistance = 100
+  controls.enableZoom = true
+  controls.minDistance = 200
   controls.maxDistance = 500
+
+  controls.maxPolarAngle = Math.PI / 2.1 // Bloque l'inclinaison en dessous du sol
+  controls.minPolarAngle = Math.PI / 3 // Bloque l'inclinaison au dessus du cheval
 }
 
 function loadHDRI() {
   const rgbeLoader = new RGBELoader()
-  rgbeLoader.load("/models/rosendal_plains_2_4k.hdr", (texture) => {
+  rgbeLoader.load("/models/background.hdr", (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping
     scene.environment = texture
-    scene.background = null
+    scene.background = texture
   })
 }
 
@@ -68,9 +78,10 @@ function loadModel() {
   loader.setDRACOLoader(dracoLoader)
 
   loader.load(
-    "/models/horse_stable.glb", // Modèle à charger
+    "/models/horse_stable.glb",
     (gltf) => {
       const model = gltf.scene
+
       centerModel(model)
       scene.add(model)
       addLights()
@@ -82,8 +93,9 @@ function loadModel() {
 
 function centerModel(model: THREE.Object3D) {
   const box = new THREE.Box3().setFromObject(model)
-  const center = box.getCenter(new THREE.Vector3())
-  model.position.sub(center) // Centre le modèle
+  const minY = box.min.y
+
+  model.position.y -= minY
 }
 
 function addLights() {
@@ -95,8 +107,29 @@ function addLights() {
 
 function animate() {
   requestAnimationFrame(animate)
-  controls.update() // Met à jour les contrôles de la caméra
-  renderer.render(scene, camera) // Rendu de la scène avec la caméra
+  renderer.render(scene, camera)
+}
+
+function addPlane() {
+  const textureLoader = new THREE.TextureLoader()
+  const grassTexture = textureLoader.load("/models/grass.jpg")
+
+  grassTexture.wrapS = THREE.RepeatWrapping
+  grassTexture.wrapT = THREE.RepeatWrapping
+  grassTexture.repeat.set(10, 10)
+
+  const geometry = new THREE.PlaneGeometry(3000, 3000)
+  const material = new THREE.MeshStandardMaterial({
+    map: grassTexture,
+    normalMap: grassTexture,
+    envMap: scene.environment,
+  })
+
+  const plane = new THREE.Mesh(geometry, material)
+  plane.rotation.x = -Math.PI / 2
+  plane.position.y = -1
+
+  scene.add(plane)
 }
 </script>
 
