@@ -10,7 +10,7 @@ import type { WebGLRenderer } from "three"
 const threeContainer = ref<HTMLElement | null>(null)
 
 let scene: THREE.Scene,
-  camera: THREE.Camera,
+  camera: THREE.PerspectiveCamera,
   renderer: WebGLRenderer,
   controls: OrbitControls
 
@@ -34,7 +34,7 @@ function setupCamera() {
     50,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000
+    10000
   )
   camera.position.set(400, 50, -80)
 }
@@ -99,8 +99,8 @@ function centerModel(model: THREE.Object3D) {
 }
 
 function addLights() {
-  scene.add(new THREE.AmbientLight(0xffffff, 0.3)) // Lumière ambiante
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5) // Lumière directionnelle
+  scene.add(new THREE.AmbientLight(0xffffff, 0.3))
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
   directionalLight.position.set(1, 1, 1).normalize()
   scene.add(directionalLight)
 }
@@ -116,9 +116,9 @@ function addPlane() {
 
   grassTexture.wrapS = THREE.RepeatWrapping
   grassTexture.wrapT = THREE.RepeatWrapping
-  grassTexture.repeat.set(10, 10)
+  grassTexture.repeat.set(7, 7)
 
-  const geometry = new THREE.PlaneGeometry(3000, 3000)
+  const geometry = new THREE.RingGeometry(0, 5000, 24, 1)
   const material = new THREE.MeshStandardMaterial({
     map: grassTexture,
     normalMap: grassTexture,
