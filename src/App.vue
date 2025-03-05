@@ -4,10 +4,11 @@ import UserForm from "./components/UserForm.vue"
 import { ref } from "vue"
 
 let horseName = ref("")
+let horseLocation = ref("")
 
-const handleSubmit = (formData: { name: string }) => {
-  console.log(formData.name)
+const handleSubmit = (formData: { name: string, location: string }) => {
   horseName.value = formData.name
+  horseLocation.value = formData.location
 }
 </script>
 
@@ -17,5 +18,5 @@ const handleSubmit = (formData: { name: string }) => {
   </div>
 
   <UserForm @submitForm="handleSubmit" />
-  <WebGL :horseName="horseName" />
+  <WebGL :horseName="horseName" :horseLocation="horseLocation"/>
 </template>

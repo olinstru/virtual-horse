@@ -10,20 +10,26 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { defineProps, watch } from "vue"
 
-const props = defineProps<{ horseName: string }>()
+const props = defineProps<{ horseName: string, horseLocation: string }>()
 
 const horseName = ref("")
+const horseLocation = ref("")
 
 let textFont: Font
 let nameMesh: THREE.Mesh
 
+
 watch(
-  () => props.horseName,
-  (newName) => {
+  () => [props.horseName, props.horseLocation],
+  ([newName, newLocation]) => {
     horseName.value = newName
+    horseLocation.value = newLocation
+
     updateText(newName)
-  }
+    loadHDRI(newLocation) 
+  },
 )
+
 
 const threeContainer = ref<HTMLElement | null>(null)
 
@@ -80,9 +86,9 @@ function setupControls() {
   controls.minPolarAngle = Math.PI / 3 // Bloque l'inclinaison au dessus du cheval
 }
 
-function loadHDRI() {
+function loadHDRI(location?: string) {
   const rgbeLoader = new RGBELoader()
-  rgbeLoader.load("/models/background.hdr", (texture) => {
+  rgbeLoader.load(location ? `/models/background_${location}.hdr` : '/models/background_plains.hdr', (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping
     scene.environment = texture
     scene.background = texture
@@ -96,7 +102,7 @@ function loadModel() {
   const loader = new GLTFLoader()
   loader.setDRACOLoader(dracoLoader)
 
-  loader.load("/models/Horse_stable.glb", (gltf) => {
+  loader.load("/models/horse_stable.glb", (gltf) => {
     const model = gltf.scene
 
     centerModel(model)
