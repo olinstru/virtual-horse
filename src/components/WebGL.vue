@@ -7,7 +7,23 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
 import type { WebGLRenderer } from "three"
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
+import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
+import { defineProps, watch } from "vue"
+
+const props = defineProps<{ horseName: string }>()
+
+const horseName = ref("")
+
+let textFont: Font
+let nameMesh: THREE.Mesh
+
+watch(
+  () => props.horseName,
+  (newName) => {
+    horseName.value = newName
+    updateText(newName)
+  }
+)
 
 const threeContainer = ref<HTMLElement | null>(null)
 
@@ -80,18 +96,13 @@ function loadModel() {
   const loader = new GLTFLoader()
   loader.setDRACOLoader(dracoLoader)
 
-  loader.load(
-    "/models/horse_stable.glb",
-    (gltf) => {
-      const model = gltf.scene
+  loader.load("/models/Horse_stable.glb", (gltf) => {
+    const model = gltf.scene
 
-      centerModel(model)
-      scene.add(model)
-      addLights()
-    },
-    (xhr) => console.log((xhr.loaded / xhr.total) * 100 + "% loaded"),
-    (error) => console.error("An error occurred", error)
-  )
+    centerModel(model)
+    scene.add(model)
+    addLights()
+  })
 }
 
 function centerModel(model: THREE.Object3D) {
@@ -135,10 +146,11 @@ function addPlane() {
   scene.add(plane)
 }
 
-function addText(text = "Choupi") {
+function addText(text: string = "Choupi") {
   const loader = new FontLoader()
 
   loader.load("/fonts/DynaPuff-Medium_Regular.json", function (font) {
+    textFont = font
     const geometry = new TextGeometry(text, {
       font: font,
       size: 10,
@@ -151,13 +163,32 @@ function addText(text = "Choupi") {
     })
 
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff }) // Blanc
-    const textMesh = new THREE.Mesh(geometry, material)
+    nameMesh = new THREE.Mesh(geometry, material)
 
-    textMesh.position.set(84, 50, 70) // Avant-arrière X, haut-bas Y, et gauche-droite Z
-    textMesh.rotation.set(0, 900, 0)
+    nameMesh.position.set(84, 50, 70) // Avant-arrière X, haut-bas Y, et gauche-droite Z
+    nameMesh.rotation.set(0, 900, 0)
 
-    scene.add(textMesh)
+    scene.add(nameMesh)
   })
+}
+
+function updateText(text: string) {
+  if (nameMesh) {
+    nameMesh.geometry.dispose()
+
+    const newGeometry = new TextGeometry(text, {
+      font: textFont,
+      size: 10,
+      depth: 1,
+      curveSegments: 12,
+      bevelThickness: 1,
+      bevelSize: 0.5,
+      bevelOffset: 0,
+      bevelSegments: 3,
+    })
+
+    nameMesh.geometry = newGeometry
+  }
 }
 </script>
 

@@ -1,18 +1,20 @@
-<script setup lang="ts" >
+<script setup lang="ts">
 import { ref } from "vue"
 
 const form = ref({ name: "" })
+const emit = defineEmits(["submitForm"])
 
-const submit = () => {
-  console.log("Form submitted:", form.value)
+const submitForm = () => {
+  emit("submitForm", form.value) // Send the name to the parent
 }
+
 </script>
 
 <template>
   <div class="form-container">
     <h2>Name your horse!</h2>
 
-    <form @submit.prevent="submit" id="form">
+    <form @submit.prevent="submitForm" id="form">
       <input type="text" placeholder="Pegasus" v-model="form.name" />
       <button type="submit">Name!</button>
     </form>
