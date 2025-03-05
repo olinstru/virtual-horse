@@ -66,6 +66,7 @@ function setupCamera() {
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
+
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
@@ -95,8 +96,8 @@ function loadHDRI(location?: string) {
       : "/models/background_plains.hdr",
     (texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping
-      scene.environment = texture
       scene.background = texture
+      scene.environment = texture
     }
   )
 }
@@ -131,21 +132,26 @@ function centerModel(model: THREE.Object3D) {
 }
 
 function addLights() {
-  scene.add(new THREE.AmbientLight(0xffffff, 0))
-  const light = new THREE.DirectionalLight(0xffffff, 1)
-  light.position.set(0, 1, 0).normalize()
-  light.castShadow = true
-  scene.add(light)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
+  scene.add(ambientLight)
 
-  light.shadow.mapSize.width = 1000
-  light.shadow.mapSize.height = 1000
+  const light = new THREE.DirectionalLight(0xffffff, 3)
+  light.position.set(100, 140, 140) // Avant-arrière X, haut-bas Y, et gauche-droite Z
+  light.castShadow = true
+
+  light.shadow.mapSize.width = 512
+  light.shadow.mapSize.height = 512
   light.shadow.camera.near = 0
-  light.shadow.camera.far = 1000
-  light.shadow.camera.left = -200
-  light.shadow.camera.bottom = -200
-  light.shadow.camera.right = 200
-  light.shadow.camera.top = 200
-  light.position.set(200, 200, 200)
+  light.shadow.camera.far = 500
+  light.shadow.camera.left = -150
+  light.shadow.camera.bottom = -150
+  light.shadow.camera.right = 150
+  light.shadow.camera.top = 150
+  light.shadow.bias = -0.001
+
+  light.lookAt(0, 0, 0)
+
+  scene.add(light)
 
   const helper = new THREE.CameraHelper(light.shadow.camera)
   scene.add(helper)
@@ -159,16 +165,25 @@ function animate() {
 function addPlane() {
   const textureLoader = new THREE.TextureLoader()
   const grassTexture = textureLoader.load("/models/grass.jpg")
+  const normalTexture = textureLoader.load("/models/grass_normal.png")
 
   grassTexture.wrapS = THREE.RepeatWrapping
   grassTexture.wrapT = THREE.RepeatWrapping
   grassTexture.repeat.set(7, 7)
 
+  normalTexture.wrapS = THREE.RepeatWrapping
+  normalTexture.wrapT = THREE.RepeatWrapping
+  normalTexture.repeat.set(40, 40)
+
   const geometry = new THREE.RingGeometry(0, 5000, 24, 1)
   const material = new THREE.MeshStandardMaterial({
     map: grassTexture,
-    normalMap: grassTexture,
+    normalMap: normalTexture,
     envMap: scene.environment,
+    side: THREE.FrontSide,
+    roughness: 1,
+    metalness: 0.7,
+    normalScale: new THREE.Vector2(0.25, 0.25),
   })
 
   const plane = new THREE.Mesh(geometry, material)
