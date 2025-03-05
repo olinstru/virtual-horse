@@ -10,14 +10,13 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { defineProps, watch } from "vue"
 
-const props = defineProps<{ horseName: string, horseLocation: string }>()
+const props = defineProps<{ horseName: string; horseLocation: string }>()
 
 const horseName = ref("")
 const horseLocation = ref("")
 
 let textFont: Font
 let nameMesh: THREE.Mesh
-
 
 watch(
   () => [props.horseName, props.horseLocation],
@@ -26,10 +25,9 @@ watch(
     horseLocation.value = newLocation
 
     updateText(newName)
-    loadHDRI(newLocation) 
-  },
+    loadHDRI(newLocation)
+  }
 )
-
 
 const threeContainer = ref<HTMLElement | null>(null)
 
@@ -48,6 +46,7 @@ onMounted(() => {
   animate()
   addPlane()
   addText()
+  addLights()
 })
 
 function setupScene() {
@@ -67,6 +66,8 @@ function setupCamera() {
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 0.9
@@ -80,7 +81,7 @@ function setupControls() {
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableZoom = true
   controls.minDistance = 200
-  controls.maxDistance = 500
+  controls.maxDistance = 1500
 
   controls.maxPolarAngle = Math.PI / 2.1 // Bloque l'inclinaison en dessous du sol
   controls.minPolarAngle = Math.PI / 3 // Bloque l'inclinaison au dessus du cheval
@@ -88,11 +89,16 @@ function setupControls() {
 
 function loadHDRI(location?: string) {
   const rgbeLoader = new RGBELoader()
-  rgbeLoader.load(location ? `/models/background_${location}.hdr` : '/models/background_plains.hdr', (texture) => {
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    scene.environment = texture
-    scene.background = texture
-  })
+  rgbeLoader.load(
+    location
+      ? `/models/background_${location}.hdr`
+      : "/models/background_plains.hdr",
+    (texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping
+      scene.environment = texture
+      scene.background = texture
+    }
+  )
 }
 
 function loadModel() {
@@ -105,9 +111,15 @@ function loadModel() {
   loader.load("/models/horse_stable.glb", (gltf) => {
     const model = gltf.scene
 
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+
     centerModel(model)
     scene.add(model)
-    addLights()
   })
 }
 
@@ -119,10 +131,24 @@ function centerModel(model: THREE.Object3D) {
 }
 
 function addLights() {
-  scene.add(new THREE.AmbientLight(0xffffff, 0.3))
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
-  directionalLight.position.set(1, 1, 1).normalize()
-  scene.add(directionalLight)
+  scene.add(new THREE.AmbientLight(0xffffff, 0))
+  const light = new THREE.DirectionalLight(0xffffff, 1)
+  light.position.set(0, 1, 0).normalize()
+  light.castShadow = true
+  scene.add(light)
+
+  light.shadow.mapSize.width = 1000
+  light.shadow.mapSize.height = 1000
+  light.shadow.camera.near = 0
+  light.shadow.camera.far = 1000
+  light.shadow.camera.left = -200
+  light.shadow.camera.bottom = -200
+  light.shadow.camera.right = 200
+  light.shadow.camera.top = 200
+  light.position.set(200, 200, 200)
+
+  const helper = new THREE.CameraHelper(light.shadow.camera)
+  scene.add(helper)
 }
 
 function animate() {
@@ -148,6 +174,7 @@ function addPlane() {
   const plane = new THREE.Mesh(geometry, material)
   plane.rotation.x = -Math.PI / 2
   plane.position.y = -1
+  plane.receiveShadow = true
 
   scene.add(plane)
 }
