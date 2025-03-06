@@ -10,10 +10,15 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { defineProps, watch } from "vue"
 
-const props = defineProps<{ horseName: string; horseLocation: string }>()
+const props = defineProps<{
+  horseName: string
+  horseLocation: string
+  sunHeight: number
+}>()
 
 const horseName = ref("")
 const horseLocation = ref("")
+const sunHeight = ref(140)
 
 let textFont: Font
 let nameMesh: THREE.Mesh
@@ -23,9 +28,19 @@ watch(
   ([newName, newLocation]) => {
     horseName.value = newName
     horseLocation.value = newLocation
+    sunHeight.value = 140
 
     updateText(newName)
     loadHDRI(newLocation)
+  }
+)
+
+watch(
+  () => props.sunHeight,
+  (newSunHeight) => {
+    sunHeight.value = newSunHeight
+
+    updateLight(newSunHeight)
   }
 )
 
@@ -34,7 +49,8 @@ const threeContainer = ref<HTMLElement | null>(null)
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   renderer: WebGLRenderer,
-  controls: OrbitControls
+  controls: OrbitControls,
+  light: THREE.DirectionalLight
 
 onMounted(() => {
   setupScene()
@@ -60,7 +76,10 @@ function setupCamera() {
     0.1,
     10000
   )
-  camera.position.set(400, 50, -80)
+  camera.position.set(400, 50, -80) // X Y Z
+
+  const axesHelper = new THREE.AxesHelper(300)
+  scene.add(axesHelper)
 }
 
 function setupRenderer() {
@@ -132,10 +151,7 @@ function centerModel(model: THREE.Object3D) {
 }
 
 function addLights() {
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
-  scene.add(ambientLight)
-
-  const light = new THREE.DirectionalLight(0xffffff, 3)
+  light = new THREE.DirectionalLight(0xffffff, 5)
   light.position.set(100, 140, 140) // Avant-arrière X, haut-bas Y, et gauche-droite Z
   light.castShadow = true
 
@@ -157,6 +173,13 @@ function addLights() {
   scene.add(helper)
 }
 
+function updateLight(sunHeight: number) {
+  if (light) {
+    light.position.z = Math.cos(sunHeight) * 250
+    light.position.y = Math.sin(sunHeight) * 250
+  }
+}
+
 function animate() {
   requestAnimationFrame(animate)
   renderer.render(scene, camera)
@@ -170,20 +193,21 @@ function addPlane() {
   grassTexture.wrapS = THREE.RepeatWrapping
   grassTexture.wrapT = THREE.RepeatWrapping
   grassTexture.repeat.set(7, 7)
+  grassTexture.colorSpace = THREE.SRGBColorSpace
 
   normalTexture.wrapS = THREE.RepeatWrapping
   normalTexture.wrapT = THREE.RepeatWrapping
   normalTexture.repeat.set(40, 40)
 
-  const geometry = new THREE.RingGeometry(0, 5000, 24, 1)
+  const geometry = new THREE.RingGeometry(0, 10000, 24, 1)
   const material = new THREE.MeshStandardMaterial({
     map: grassTexture,
     normalMap: normalTexture,
     envMap: scene.environment,
     side: THREE.FrontSide,
-    roughness: 1,
-    metalness: 0.7,
-    normalScale: new THREE.Vector2(0.25, 0.25),
+    roughness: 0.9,
+    normalScale: new THREE.Vector2(0.3, 0.3),
+    color: new THREE.Color().setHSL(0.2, 0.35, 0.35),
   })
 
   const plane = new THREE.Mesh(geometry, material)

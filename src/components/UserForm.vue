@@ -1,43 +1,75 @@
 <script setup lang="ts">
 import { ref } from "vue"
+import type { SceneConfig } from "../interfaces/scene-config.interface"
 
-const form = ref({ name: "", location: "plains" })
-const emit = defineEmits(["submitForm"])
+const form = ref<SceneConfig>({
+  name: "",
+  location: "plains",
+  sunHeight: 140,
+})
+
+const emit = defineEmits(["submitForm", "updateLocation", "updateSunHeight"])
 
 const submitForm = () => {
   emit("submitForm", form.value)
 }
-</script>
 
+const updateLocation = () => {
+  emit("updateLocation", form.value.location)
+}
+
+const updateSunHeight = () => {
+  form.value.sunHeight = Number(form.value.sunHeight)
+  emit("updateSunHeight", form.value.sunHeight)
+}
+</script>
 <template>
   <div class="form-container">
     <h2>Name your horse!</h2>
 
     <form @submit.prevent="submitForm" id="form">
-      <label for="name">Choose a horse name!</label>
-      <input
-        type="text"
-        placeholder="Pegasus"
-        v-model="form.name"
-        name="name"
-        id="name"
-        maxlength="7"
-        required
-      />
+      <div class="form-group">
+        <label for="name">Choose a horse name!</label>
+        <div id="horse-name">
+          <input
+            type="text"
+            placeholder="Pegasus"
+            v-model="form.name"
+            name="name"
+            id="name"
+            maxlength="7"
+            required
+          />
+          <button type="submit">Change name</button>
+        </div>
+      </div>
 
-      <label for="location">Choose a location!</label>
-      <select
-        id="location"
-        name="location"
-        v-model="form.location"
-      >
-        <option value="plains" selected>Plains</option>
-        <option value="forest">Forest</option>
-        <option value="night">Night</option>
-        <option value="garden">Garden</option>
-      </select>
+      <div class="form-group">
+        <label for="location">Choose a location!</label>
+        <select
+          id="location"
+          name="location"
+          v-model="form.location"
+          @change="updateLocation"
+        >
+          <option value="plains" selected>Plains</option>
+          <option value="forest">Forest</option>
+          <option value="night">Night</option>
+        </select>
+      </div>
 
-      <button type="submit">Submit</button>
+      <div class="form-group">
+        <label for="timeOfDay">Change the lighting!</label>
+        <input
+          name="sunHeight"
+          type="range"
+          v-model="form.sunHeight"
+          min="0"
+          max="3.14"
+          step="0.01"
+          @input="updateSunHeight"
+        />
+      </div>
     </form>
   </div>
 </template>
@@ -45,47 +77,113 @@ const submitForm = () => {
 <style scoped>
 * {
   font-family: "DynaPuff", system-ui;
+  margin: 0;
+  padding: 0;
 }
 
 .form-container {
   background-color: rgba(255, 145, 0, 0.415);
-  border: 2px white solid;
-  width: 27rem;
-  border-radius: 2rem;
-  padding: 2rem;
+  border: 2px solid white;
+  width: 30rem;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
   margin: 2rem;
   position: absolute;
   top: 20%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.form-container:hover {
+  transform: scale(1.05);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  width: 18rem;
+  gap: 1.5rem;
 }
 
-select {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+label {
+  font-size: 1.2rem;
 }
 
-input {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+input,
+select,
+button {
+  padding: 0.8rem;
+  border-radius: 1rem;
+  border: 2px solid #ff5722;
+  color: #ff5722;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+button:focus {
+  border-color: #ff7043;
+  box-shadow: 0 0 8px rgba(255, 87, 34, 0.5);
+}
+
+input::placeholder {
+  color: #fcb099;
 }
 
 button {
-  background-color: orange;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
+  background-color: #ff5722;
+  color: white;
+  cursor: pointer;
 }
 
-#form {
+button:hover {
+  background-color: #ff7043;
+  transform: scale(1.05);
+}
+
+#horse-name {
   display: flex;
   gap: 1rem;
 }
 
 select {
   font-family: "DynaPuff", system-ui;
+}
+
+input[type="range"] {
+  background: #ff5722;
+  border-radius: 10px;
+  height: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 16px;
+  border-radius: 10px;
+  background: #ff7043;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 100%;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.724);
 }
 </style>

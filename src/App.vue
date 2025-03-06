@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import WebGL from "./components/WebGL.vue"
-import UserForm from "./components/UserForm.vue"
 import { ref } from "vue"
+import type { SceneConfig } from "./interfaces/scene-config.interface"
+import UserForm from "./components/UserForm.vue"
 
 let horseName = ref("")
 let horseLocation = ref("")
+let sunHeight = ref(0)
 
-const handleSubmit = (formData: { name: string, location: string }) => {
+const handleSubmit = (formData: SceneConfig) => {
   horseName.value = formData.name
-  horseLocation.value = formData.location
+}
+
+const handleSunHeightChange = (newHeight: number) => {
+  sunHeight.value = newHeight
+}
+
+const handleLocationChange = (newLocation: string) => {
+  horseLocation.value = newLocation
 }
 </script>
 
@@ -17,6 +26,14 @@ const handleSubmit = (formData: { name: string, location: string }) => {
     <h1>My Virtual Horse</h1>
   </div>
 
-  <UserForm @submitForm="handleSubmit" />
-  <WebGL :horseName="horseName" :horseLocation="horseLocation"/>
+  <UserForm
+    @submitForm="handleSubmit"
+    @updateSunHeight="handleSunHeightChange"
+    @updateLocation="handleLocationChange"
+  />
+  <WebGL
+    :horseName="horseName"
+    :horseLocation="horseLocation"
+    :sunHeight="sunHeight"
+  />
 </template>
