@@ -9,6 +9,15 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* COLORS */
+  --primary-color: #7e57c2;
+  --secondary-color: #b39ddb;
+  --light-color: #ede7f6;
+  --light-color-transparent: rgba(126, 87, 194, 0.2);
+  --border-color: #5e35b1;
+  --text-color: #4527a0;
+
 }
 
 html,

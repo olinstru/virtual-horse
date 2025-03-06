@@ -82,15 +82,15 @@ const updateSunHeight = () => {
 }
 
 .form-container {
-  background-color: rgba(255, 145, 0, 0.415);
-  border: 2px solid white;
+  background-color: var(--light-color-transparent);
+  border: 2px solid var(--light-color);
   width: 30rem;
   border-radius: 1.5rem;
   padding: 2.5rem;
   margin: 2rem;
   position: absolute;
   top: 20%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--border-color);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -109,7 +109,7 @@ h2 {
   font-size: 1.8rem;
   text-align: center;
   margin-bottom: 1.5rem;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  text-shadow: 2px 2px 5px var(--border-color);
 }
 
 form {
@@ -127,8 +127,8 @@ select,
 button {
   padding: 0.8rem;
   border-radius: 1rem;
-  border: 2px solid #ff5722;
-  color: #ff5722;
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
   font-size: 1rem;
   outline: none;
   transition: all 0.3s ease;
@@ -137,22 +137,22 @@ button {
 input:focus,
 select:focus,
 button:focus {
-  border-color: #ff7043;
-  box-shadow: 0 0 8px rgba(255, 87, 34, 0.5);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px var(--border-color);
 }
 
 input::placeholder {
-  color: #fcb099;
+  color: var(--secondary-color);
 }
 
 button {
-  background-color: #ff5722;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--light-color);
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #ff7043;
+  background-color: var(--secondary-color);
   transform: scale(1.05);
 }
 
@@ -166,7 +166,7 @@ select {
 }
 
 input[type="range"] {
-  background: #ff5722;
+  background: var(--primary-color);
   border-radius: 10px;
   height: 16px;
   -webkit-appearance: none;
@@ -176,7 +176,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 16px;
   border-radius: 10px;
-  background: #ff7043;
+  background: var(--secondary-color);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -184,6 +184,6 @@ input[type="range"]::-webkit-slider-thumb {
   height: 1rem;
   border-radius: 100%;
   -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.724);
+  background: var(--light-color);
 }
 </style>
