@@ -9,6 +9,8 @@ import type { WebGLRenderer } from "three"
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { defineProps, watch } from "vue"
+import { EffectComposer, EffectPass, RenderPass } from "postprocessing"
+import { BloomEffect } from "../WebGL/effects/bloomEffect"
 
 const props = defineProps<{
   horseName: string
@@ -50,12 +52,14 @@ let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   renderer: WebGLRenderer,
   controls: OrbitControls,
-  light: THREE.DirectionalLight
+  light: THREE.DirectionalLight,
+  composer: EffectComposer
 
 onMounted(() => {
   setupScene()
   setupCamera()
   setupRenderer()
+  setupComposer()
   setupControls()
   loadHDRI()
   loadModel()
@@ -80,6 +84,12 @@ function setupCamera() {
 
   const axesHelper = new THREE.AxesHelper(300)
   scene.add(axesHelper)
+}
+
+function setupComposer() {
+  composer = new EffectComposer(renderer)
+  composer.addPass(new RenderPass(scene, camera))
+  composer.addPass(new EffectPass(camera, new BloomEffect()))
 }
 
 function setupRenderer() {
@@ -182,7 +192,7 @@ function updateLight(sunHeight: number) {
 
 function animate() {
   requestAnimationFrame(animate)
-  renderer.render(scene, camera)
+  composer.render()
 }
 
 function addPlane() {
