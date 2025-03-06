@@ -35,10 +35,12 @@ h1 {
   top: 5%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: var(--primary-color);
+  -webkit-text-stroke: 2px var(--light-color);
   font-size: 4rem;
   text-align: center;
   z-index: 10;
+
 }
 
 .threeContainer {

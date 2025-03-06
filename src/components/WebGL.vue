@@ -67,10 +67,22 @@ onMounted(() => {
   addPlane()
   addText()
   addLights()
+  enableHelpers(false)
 })
 
 function setupScene() {
   scene = new THREE.Scene()
+}
+
+function enableHelpers(boolean: boolean) {
+  if (!boolean) {
+    return
+  }
+  const axesHelper = new THREE.AxesHelper(300)
+  scene.add(axesHelper)
+
+  const cameraHelper = new THREE.CameraHelper(light.shadow.camera)
+  scene.add(cameraHelper)
 }
 
 function setupCamera() {
@@ -81,9 +93,6 @@ function setupCamera() {
     10000
   )
   camera.position.set(400, 50, -80) // X Y Z
-
-  const axesHelper = new THREE.AxesHelper(300)
-  scene.add(axesHelper)
 }
 
 function setupComposer() {
@@ -178,9 +187,6 @@ function addLights() {
   light.lookAt(0, 0, 0)
 
   scene.add(light)
-
-  const helper = new THREE.CameraHelper(light.shadow.camera)
-  scene.add(helper)
 }
 
 function updateLight(sunHeight: number) {
