@@ -8,7 +8,14 @@ const form = ref<SceneConfig>({
   sunHeight: 3.14 / 2,
 })
 
-const emit = defineEmits(["submitForm", "updateLocation", "updateSunHeight"])
+const emit = defineEmits([
+  "submitForm",
+  "updateLocation",
+  "updateSunHeight",
+  "closeForm",
+])
+
+const isFormVisible = ref(true)
 
 const submitForm = () => {
   emit("submitForm", form.value)
@@ -22,9 +29,18 @@ const updateSunHeight = () => {
   form.value.sunHeight = Number(form.value.sunHeight)
   emit("updateSunHeight", form.value.sunHeight)
 }
+
+const closeForm = () => {
+  isFormVisible.value = false
+  emit("closeForm", isFormVisible.value)
+}
 </script>
+
 <template>
-  <div class="form-container">
+  <div v-if="isFormVisible" class="form-container">
+    <button type="button" @click="closeForm" id="close-button">
+      <i class="fa-solid fa-circle-xmark"></i> Close
+    </button>
     <h2>Personalise your horse!</h2>
 
     <form @submit.prevent="submitForm" id="form">
@@ -176,5 +192,11 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 100%;
   -webkit-appearance: none;
   background: var(--light-color);
+}
+
+#close-button {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
