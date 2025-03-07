@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from "vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 const isPlaying = ref(false)
 const audio = new Audio("/audios/music/nature-walk.mp3")
