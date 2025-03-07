@@ -29,7 +29,9 @@ const updateSunHeight = () => {
 
     <form @submit.prevent="submitForm" id="form">
       <div class="form-group">
-        <label for="name">Choose a horse name!</label>
+        <label for="name"
+          >Choose a horse name! <small> (7 letters max)</small>
+        </label>
         <div id="horse-name">
           <input
             type="text"
@@ -43,34 +45,33 @@ const updateSunHeight = () => {
           <button type="submit">Change name</button>
         </div>
       </div>
-
-      <div class="form-group">
-        <label for="location">Choose a location!</label>
-        <select
-          id="location"
-          name="location"
-          v-model="form.location"
-          @change="updateLocation"
-        >
-          <option value="plains" selected>Plains</option>
-          <option value="forest">Forest</option>
-          <option value="night">Night</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="timeOfDay">Change the lighting!</label>
-        <input
-          name="sunHeight"
-          type="range"
-          v-model="form.sunHeight"
-          min="0"
-          max="3.14"
-          step="0.01"
-          @input="updateSunHeight"
-        />
-      </div>
     </form>
+    <div class="form-group">
+      <label for="location">Choose a location!</label>
+      <select
+        id="location"
+        name="location"
+        v-model="form.location"
+        @change="updateLocation"
+      >
+        <option value="plains" selected>Plains</option>
+        <option value="forest">Forest</option>
+        <option value="night">Night</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="timeOfDay">Change the lighting!</label>
+      <input
+        name="sunHeight"
+        type="range"
+        v-model="form.sunHeight"
+        min="0"
+        max="3.14"
+        step="0.01"
+        @input="updateSunHeight"
+      />
+    </div>
   </div>
 </template>
 

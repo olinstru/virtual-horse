@@ -12,6 +12,20 @@ import { defineProps, watch } from "vue"
 import { EffectComposer, EffectPass, RenderPass } from "postprocessing"
 import { BloomEffect } from "../WebGL/effects/bloomEffect"
 
+let scene: THREE.Scene,
+  camera: THREE.PerspectiveCamera,
+  renderer: WebGLRenderer,
+  controls: OrbitControls,
+  light: THREE.DirectionalLight,
+  composer: EffectComposer
+
+let textFont: Font
+let nameMesh: THREE.Mesh
+let horseSounds: THREE.Audio[] = []
+
+const threeContainer = ref<HTMLElement | null>(null)
+const horse = ref<THREE.Object3D | null>(null)
+
 const props = defineProps<{
   horseName: string
   horseLocation: string
@@ -22,17 +36,20 @@ const horseName = ref("")
 const horseLocation = ref("")
 const sunHeight = ref(140)
 
-let textFont: Font
-let nameMesh: THREE.Mesh
-
 watch(
-  () => [props.horseName, props.horseLocation],
-  ([newName, newLocation]) => {
+  () => [props.horseName],
+  ([newName]) => {
     horseName.value = newName
-    horseLocation.value = newLocation
-    sunHeight.value = 140
 
     updateText(newName)
+  }
+)
+
+watch(
+  () => [props.horseLocation],
+  ([newLocation]) => {
+    horseLocation.value = newLocation
+
     loadHDRI(newLocation)
   }
 )
@@ -45,15 +62,6 @@ watch(
     updateLight(newSunHeight)
   }
 )
-
-const threeContainer = ref<HTMLElement | null>(null)
-
-let scene: THREE.Scene,
-  camera: THREE.PerspectiveCamera,
-  renderer: WebGLRenderer,
-  controls: OrbitControls,
-  light: THREE.DirectionalLight,
-  composer: EffectComposer
 
 onMounted(() => {
   setupScene()
@@ -68,6 +76,7 @@ onMounted(() => {
   addText()
   addLights()
   enableHelpers(false)
+  addSounds()
 })
 
 function setupScene() {
@@ -159,6 +168,11 @@ function loadModel() {
 
     centerModel(model)
     scene.add(model)
+
+    horse.value = model // Store reference to the horse model
+
+    // Enable click detection once the model is loaded
+    window.addEventListener("click", onHorseClick)
   })
 }
 
@@ -276,6 +290,51 @@ function updateText(text: string) {
     })
 
     nameMesh.geometry = newGeometry
+  }
+}
+
+function addSounds() {
+  const listener = new THREE.AudioListener()
+  camera.add(listener)
+
+  const audioLoader = new THREE.AudioLoader()
+  const soundFiles = [
+    "/audios/sounds/horse-neigh.mp3",
+    "/audios/sounds/horse-neigh-2.mp3",
+    "/audios/sounds/horse-snort.mp3",
+  ]
+
+  horseSounds = soundFiles.map((file) => {
+    const sound = new THREE.Audio(listener)
+    audioLoader.load(file, (buffer) => {
+      sound.setBuffer(buffer)
+      sound.setLoop(false)
+      sound.setVolume(0.8)
+    })
+    return sound
+  })
+}
+
+const onHorseClick = (event: MouseEvent) => {
+  if (!horse.value || horseSounds.length === 0) return
+
+  const raycaster = new THREE.Raycaster()
+  const mouse = new THREE.Vector2()
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+  raycaster.setFromCamera(mouse, camera)
+  const intersects = raycaster.intersectObject(horse.value, true)
+
+  if (intersects.length > 0) {
+    horseSounds.forEach((sound) => {
+      if (sound.isPlaying) sound.stop()
+    })
+
+    const randomSound =
+      horseSounds[Math.floor(Math.random() * horseSounds.length)]
+    randomSound.play()
   }
 }
 </script>
