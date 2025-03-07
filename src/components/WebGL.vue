@@ -120,7 +120,7 @@ function setupControls() {
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableZoom = true
   controls.minDistance = 200
-  controls.maxDistance = 1500
+  controls.maxDistance = 800
 
   controls.maxPolarAngle = Math.PI / 2.1 // Bloque l'inclinaison en dessous du sol
   controls.minPolarAngle = Math.PI / 3 // Bloque l'inclinaison au dessus du cheval
@@ -130,8 +130,8 @@ function loadHDRI(location?: string) {
   const rgbeLoader = new RGBELoader()
   rgbeLoader.load(
     location
-      ? `/models/background_${location}.hdr`
-      : "/models/background_plains.hdr",
+      ? `/models/hdri/background_${location}.hdr`
+      : "/models/hdri/background_plains.hdr",
     (texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping
       scene.background = texture
@@ -147,7 +147,7 @@ function loadModel() {
   const loader = new GLTFLoader()
   loader.setDRACOLoader(dracoLoader)
 
-  loader.load("/models/horse_stable.glb", (gltf) => {
+  loader.load("/models/glb/horse_stable.glb", (gltf) => {
     const model = gltf.scene
 
     model.traverse((child) => {
@@ -203,8 +203,8 @@ function animate() {
 
 function addPlane() {
   const textureLoader = new THREE.TextureLoader()
-  const grassTexture = textureLoader.load("/models/grass.jpg")
-  const normalTexture = textureLoader.load("/models/grass_normal.png")
+  const grassTexture = textureLoader.load("/models/textures/grass.jpg")
+  const normalTexture = textureLoader.load("/models/textures/grass_normal.png")
 
   grassTexture.wrapS = THREE.RepeatWrapping
   grassTexture.wrapT = THREE.RepeatWrapping

@@ -25,7 +25,7 @@ const updateSunHeight = () => {
 </script>
 <template>
   <div class="form-container">
-    <h2>Name your horse!</h2>
+    <h2>Personalise your horse!</h2>
 
     <form @submit.prevent="submitForm" id="form">
       <div class="form-group">
