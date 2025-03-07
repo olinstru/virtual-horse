@@ -5,7 +5,7 @@ import type { SceneConfig } from "../interfaces/scene-config.interface"
 const form = ref<SceneConfig>({
   name: "",
   location: "plains",
-  sunHeight: 140,
+  sunHeight: 3.14 / 2,
 })
 
 const emit = defineEmits(["submitForm", "updateLocation", "updateSunHeight"])
@@ -75,12 +75,6 @@ const updateSunHeight = () => {
 </template>
 
 <style scoped>
-* {
-  font-family: "DynaPuff", system-ui;
-  margin: 0;
-  padding: 0;
-}
-
 .form-container {
   background-color: var(--light-color-transparent);
   border: 2px solid var(--light-color);
@@ -159,10 +153,6 @@ button:hover {
 #horse-name {
   display: flex;
   gap: 1rem;
-}
-
-select {
-  font-family: "DynaPuff", system-ui;
 }
 
 input[type="range"] {

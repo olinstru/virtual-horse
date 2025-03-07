@@ -1,7 +1,7 @@
 :root {
   font-family: "DynaPuff", system-ui;
   size: 16px;
-  color: white;
+  color: var(--white);
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
@@ -17,7 +17,11 @@
   --light-color-transparent: rgba(126, 87, 194, 0.2);
   --border-color: #5e35b1;
   --text-color: #4527a0;
+  --white: #f9f3fb;
+}
 
+* {
+  font-family: var(--font-family);
 }
 
 html,

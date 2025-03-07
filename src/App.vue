@@ -3,6 +3,7 @@ import WebGL from "./components/WebGL.vue"
 import { ref } from "vue"
 import type { SceneConfig } from "./interfaces/scene-config.interface"
 import UserForm from "./components/UserForm.vue"
+import MusicPlayer from "./components/MusicPlayer.vue"
 
 let horseName = ref("")
 let horseLocation = ref("")
@@ -26,6 +27,7 @@ const handleLocationChange = (newLocation: string) => {
     <h1>My Virtual Horse</h1>
   </div>
 
+  <MusicPlayer class="position-absolute" />
   <UserForm
     @submitForm="handleSubmit"
     @updateSunHeight="handleSunHeightChange"
@@ -37,3 +39,11 @@ const handleLocationChange = (newLocation: string) => {
     :sunHeight="sunHeight"
   />
 </template>
+
+<style>
+.position-absolute {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+</style>
