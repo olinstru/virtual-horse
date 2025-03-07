@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
 import * as THREE from "three"
+import type { WebGLRenderer } from "three"
+import { ref, onMounted } from "vue"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
-import type { WebGLRenderer } from "three"
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { defineProps, watch } from "vue"
 import { EffectComposer, EffectPass, RenderPass } from "postprocessing"
 import { BloomEffect } from "../WebGL/effects/bloomEffect"
+import { gsap } from "gsap"
 
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
@@ -77,6 +78,7 @@ onMounted(() => {
   addLights()
   enableHelpers(false)
   addSounds()
+  gsapEffect()
 })
 
 function setupScene() {
@@ -336,6 +338,19 @@ const onHorseClick = (event: MouseEvent) => {
       horseSounds[Math.floor(Math.random() * horseSounds.length)]
     randomSound.play()
   }
+}
+
+function gsapEffect() {
+  gsap.from(camera.position, {
+    duration: 3,
+    x: 1000,
+    y: 1000,
+    z: 1000, 
+    ease: "power3.out", 
+    onComplete: () => {
+      camera.position.set(400, 50, -80)
+    },
+  })
 }
 </script>
 
