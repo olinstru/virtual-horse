@@ -12,6 +12,7 @@ import { defineProps, watch } from "vue"
 import { EffectComposer, EffectPass, RenderPass } from "postprocessing"
 import { BloomEffect } from "../WebGL/effects/bloomEffect"
 import { gsap } from "gsap"
+import Loader from "./Loader.vue"
 
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
@@ -24,6 +25,7 @@ let textFont: Font
 let nameMesh: THREE.Mesh
 let horseSounds: THREE.Audio[] = []
 
+const isLoading = ref(true)
 const threeContainer = ref<HTMLElement | null>(null)
 const horse = ref<THREE.Object3D | null>(null)
 
@@ -158,24 +160,37 @@ function loadModel() {
   const loader = new GLTFLoader()
   loader.setDRACOLoader(dracoLoader)
 
-  loader.load("/models/glb/horse_stable.glb", (gltf) => {
-    const model = gltf.scene
+  loader.load(
+    "/models/glb/horse_stable.glb",
+    (gltf) => {
+      const model = gltf.scene
 
-    model.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true
-        child.receiveShadow = true
-      }
-    })
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = true
+          child.receiveShadow = true
+        }
+      })
 
-    centerModel(model)
-    scene.add(model)
+      centerModel(model)
+      scene.add(model)
 
-    horse.value = model // Store reference to the horse model
+      horse.value = model
 
-    // Enable click detection once the model is loaded
-    window.addEventListener("click", onHorseClick)
-  })
+      window.addEventListener("click", onHorseClick)
+
+      isLoading.value = false
+    },
+    (xhr) => {
+      // Log loading progress
+      console.log(`Loading... ${(xhr.loaded / xhr.total) * 100}%`)
+    },
+    (error) => {
+      // Log error if any occurs during loading
+      console.error("Error loading model:", error)
+      isLoading.value = false // Hide loader even if there's an error
+    }
+  )
 }
 
 function centerModel(model: THREE.Object3D) {
@@ -345,8 +360,8 @@ function gsapEffect() {
     duration: 3,
     x: 1000,
     y: 1000,
-    z: 1000, 
-    ease: "power3.out", 
+    z: 1000,
+    ease: "power3.out",
     onComplete: () => {
       camera.position.set(400, 50, -80)
     },
@@ -355,5 +370,7 @@ function gsapEffect() {
 </script>
 
 <template>
-  <div ref="threeContainer"></div>
+  <div ref="threeContainer">
+    <Loader v-if="isLoading" />
+  </div>
 </template>

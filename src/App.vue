@@ -27,7 +27,7 @@ const handleLocationChange = (newLocation: string) => {
     <h1>My Virtual Horse</h1>
   </div>
 
-  <MusicPlayer class="position-absolute" />
+  <MusicPlayer id="music-player" class="position-absolute" />
   <UserForm
     @submitForm="handleSubmit"
     @updateSunHeight="handleSunHeightChange"
@@ -41,7 +41,7 @@ const handleLocationChange = (newLocation: string) => {
 </template>
 
 <style>
-.position-absolute {
+#music-player {
   position: absolute;
   top: 0;
   right: 0;
